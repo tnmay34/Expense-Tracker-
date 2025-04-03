@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Expense Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --income: #10b981;
+      --expense: #ef4444;
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --text: #111827;
+      --text-light: #6b7280;
+      --border: #e5e7eb;
+    }
+    
+    [data-theme="dark"] {
+      --primary: #6366f1;
+      --income: #10b981;
+      --expense: #ef4444;
+      --bg: #111827;
+      --card-bg: #1f2937;
+      --text: #f9fafb;
+      --text-light: #9ca3af;
+      --border: #374151;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    
+    html,
+    body {
+      height: 100%;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .container {
+      flex: 1;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem 0;
+      position: sticky;
+      top: 0;
+      background-color: var(--bg);
+      z-index: 10;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      width: 10%;
+    }
+    
+    /* Mobile-first layout */
+    .form-container {
+      background-color: var(--card-bg);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+    }
+    
+    .form-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    
+    input,
+    select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .type-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+    
+    .type-option {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text);
+      font-size: 0.9375rem;
+    }
+    
+    .type-option input {
+      display: none;
+    }
+    
+    .type-option:first-child {
+      border-right: 1px solid var(--border);
+    }
+    
+    .type-option.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .type-option.income.active {
+      background-color: var(--income);
+    }
+    
+    .type-option.expense.active {
+      background-color: var(--expense);
+    }
+    
+    button {
+      width: 100%;
+      padding: 0.875rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .card-title {
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-value {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+    
+    .balance {
+      color: var(--primary);
+    }
+    
+    .income {
+      color: var(--income);
+    }
+    
+    .expense {
+      color: var(--expense);
+    }
+    
+    .transactions-container {
+      background-color: var(--card-bg);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 300px;
+    }
+    
+    .transactions-header {
+      margin-bottom: 1.25rem;
+    }
+    
+    .transactions-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .transactions-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    
+    .transaction {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .transaction:last-child {
+      border-bottom: none;
+    }
+    
+    .transaction-details {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .transaction-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+    
+    .income-icon {
+      background-color: var(--income);
+    }
+    
+    .expense-icon {
+      background-color: var(--expense);
+    }
+    
+    .transaction-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .transaction-info h3 {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.9375rem;
+    }
+    
+    .transaction-info p {
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .transaction-amount {
+      font-weight: 600;
+      margin-left: 0.5rem;
+      flex-shrink: 0;
+      font-size: 0.9375rem;
+    }
+    
+    .income-amount {
+      color: var(--income);
+    }
+    
+    .expense-amount {
+      color: var(--expense);
+    }
+    
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-light);
+      padding: 2rem;
+    }
+    
+    .empty-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    
+    /* Tablet and desktop layout */
+    @media (min-width: 768px) {
+      .container {
+        max-width: 800px;
+        padding: 1.5rem;
+      }
+      
+      .form-container {
+        padding: 1.5rem;
+      }
+      
+      .summary-cards {
+        gap: 1rem;
+      }
+      
+      .card {
+        padding: 1.25rem;
+      }
+      
+      .card-title {
+        font-size: 0.875rem;
+      }
+      
+      .card-value {
+        font-size: 1.25rem;
+      }
+      
+      .transaction-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.125rem;
+      }
+      
+      .transaction-info h3 {
+        font-size: 1rem;
+      }
+      
+      .transaction-info p {
+        font-size: 0.875rem;
+      }
+      
+      .transaction-amount {
+        font-size: 1rem;
+      }
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Expense Tracker</h1>
+      <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+      </button>
+    </header>
+    
+    <!-- Add Expense Form at the Top -->
+    <div class="form-container">
+      <div class="form-title">
+        <i class="fas fa-plus-circle"></i>
+        Add Transaction
+      </div>
+      <form id="transactionForm">
+        <div class="form-group">
+          <label for="description">Description (Optional)</label>
+          <input type="text" id="description" placeholder="e.g. Groceries">
+        </div>
+        <div class="form-group">
+          <label for="amount">Amount (₹)</label>
+          <input type="number" id="amount" placeholder="0.00" required>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <div class="type-toggle">
+            <label class="type-option income" id="incomeOption">
+              <input type="radio" name="type" value="income">
+              <i class="fas fa-arrow-down"></i> Income
+            </label>
+            <label class="type-option expense active" id="expenseOption">
+              <input type="radio" name="type" value="expense" checked>
+              <i class="fas fa-arrow-up"></i> Expense
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" required>
+            <option value="food">Food</option>
+            <option value="shopping">Shopping</option>
+            <option value="transport">Transport</option>
+            <option value="housing">Housing</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <button type="submit">
+          <i class="fas fa-check"></i> Add Transaction
+        </button>
+      </form>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-title">Balance</div>
+        <div class="card-value balance" id="balanceAmount">₹0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Income</div>
+        <div class="card-value income" id="incomeAmount">₹0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Expenses</div>
+        <div class="card-value expense" id="expenseAmount">₹0</div>
+      </div>
+    </div>
+    
+    <!-- Transactions List at the Bottom -->
+    <div class="transactions-container">
+      <div class="transactions-header">
+        <div class="transactions-title">
+          <i class="fas fa-history"></i>
+          Recent Transactions
+        </div>
+      </div>
+      <div class="transactions-list" id="transactionsList">
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-receipt"></i>
+          </div>
+          <p>No transactions yet</p>
+          <p>Add your first transaction to get started</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // DOM Elements
+    const transactionForm = document.getElementById('transactionForm');
+    const transactionsList = document.getElementById('transactionsList');
+    const balanceAmount = document.getElementById('balanceAmount');
+    const incomeAmount = document.getElementById('incomeAmount');
+    const expenseAmount = document.getElementById('expenseAmount');
+    const incomeOption = document.getElementById('incomeOption');
+    const expenseOption = document.getElementById('expenseOption');
+    const themeToggle = document.getElementById('themeToggle');
+    const categorySelect = document.getElementById('category');
+    
+    // Initialize transactions array
+    let transactions = [];
+    
+    // Theme management
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      
+      // Update icon
+      themeToggle.innerHTML = newTheme === 'dark' ?
+        '<i class="fas fa-sun"></i>' :
+        '<i class="fas fa-moon"></i>';
+    }
+    
+    // Set initial theme
+    document.documentElement.setAttribute('data-theme', 'light');
+    
+    // Update category options based on transaction type
+    function updateCategoryOptions(type) {
+      // Clear existing options
+      categorySelect.innerHTML = '';
+      
+      if (type === 'income') {
+        // Income categories
+        const incomeCategories = [
+          { value: 'salary', text: 'Salary' },
+          { value: 'freelance', text: 'Freelance' },
+          { value: 'investment', text: 'Investment' },
+          { value: 'other', text: 'Other' }
+        ];
+        
+        incomeCategories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.value;
+          option.textContent = cat.text;
+          categorySelect.appendChild(option);
+        });
+      } else {
+        // Expense categories
+        const expenseCategories = [
+          { value: 'food', text: 'Food' },
+          { value: 'shopping', text: 'Shopping' },
+          { value: 'transport', text: 'Transport' },
+          { value: 'housing', text: 'Housing' },
+          { value: 'entertainment', text: 'Entertainment' },
+          { value: 'other', text: 'Other' }
+        ];
+        
+        expenseCategories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.value;
+          option.textContent = cat.text;
+          categorySelect.appendChild(option);
+        });
+      }
+    }
+    
+    // Update balance and summary
+    function updateSummary() {
+      let income = 0;
+      let expenses = 0;
+      
+      transactions.forEach(transaction => {
+        if (transaction.type === 'income') {
+          income += transaction.amount;
+        } else {
+          expenses += transaction.amount;
+        }
+      });
+      
+      const balance = income - expenses;
+      
+      balanceAmount.textContent = `₹${balance.toLocaleString('en-IN')}`;
+      incomeAmount.textContent = `₹${income.toLocaleString('en-IN')}`;
+      expenseAmount.textContent = `₹${expenses.toLocaleString('en-IN')}`;
+    }
+    
+    // Add transaction to DOM
+    function addTransactionToDOM(transaction) {
+      // Remove empty state if it exists
+      const emptyState = transactionsList.querySelector('.empty-state');
+      if (emptyState) {
+        transactionsList.removeChild(emptyState);
+      }
+      
+      const transactionElement = document.createElement('div');
+      transactionElement.className = 'transaction';
+      
+      const iconClass = transaction.type === 'income' ? 'income-icon' : 'expense-icon';
+      const icon = transaction.type === 'income' ? 'fa-arrow-down' : 'fa-arrow-up';
+      const amountClass = transaction.type === 'income' ? 'income-amount' : 'expense-amount';
+      const amountPrefix = transaction.type === 'income' ? '+' : '-';
+      const description = transaction.description ||
+        transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1);
+      
+      // Format date as "Today", "Yesterday", or "Apr 5"
+      const today = new Date();
+      const transactionDate = new Date(transaction.date);
+      const diffDays = Math.floor((today - transactionDate) / (1000 * 60 * 60 * 24));
+      
+      let dateString;
+      if (diffDays === 0) dateString = 'Today';
+      else if (diffDays === 1) dateString = 'Yesterday';
+      else dateString = transactionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      transactionElement.innerHTML = `
+                <div class="transaction-details">
+                    <div class="transaction-icon ${iconClass}">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <div class="transaction-info">
+                        <h3>${description}</h3>
+                        <p>
+                            <i class="fas fa-tag"></i>
+                            ${transaction.category} • 
+                            <i class="far fa-calendar-alt"></i>
+                            ${dateString}
+                        </p>
+                    </div>
+                </div>
+                <div class="transaction-amount ${amountClass}">
+                    ${amountPrefix}₹${transaction.amount.toLocaleString('en-IN')}
+                </div>
+            `;
+      
+      transactionsList.insertBefore(transactionElement, transactionsList.firstChild);
+    }
+    
+    // Toggle type selection
+    incomeOption.addEventListener('click', () => {
+      incomeOption.classList.add('active');
+      expenseOption.classList.remove('active');
+      updateCategoryOptions('income');
+    });
+    
+    expenseOption.addEventListener('click', () => {
+      expenseOption.classList.add('active');
+      incomeOption.classList.remove('active');
+      updateCategoryOptions('expense');
+    });
+    
+    // Theme toggle
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // Form submit handler
+    transactionForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const amountInput = document.getElementById('amount');
+      const amountValue = amountInput.value.trim();
+      
+      // Validate amount
+      if (!amountValue || isNaN(amountValue) || parseFloat(amountValue) <= 0) {
+        amountInput.focus();
+        return;
+      }
+      
+      const description = document.getElementById('description').value;
+      const amount = parseFloat(amountValue);
+      const type = document.querySelector('input[name="type"]:checked').value;
+      const category = document.getElementById('category').value;
+      
+      const transaction = {
+        id: Date.now(),
+        description,
+        amount,
+        type,
+        category,
+        date: new Date()
+      };
+      
+      transactions.push(transaction);
+      addTransactionToDOM(transaction);
+      updateSummary();
+      
+      // Reset form (keep type selection)
+      transactionForm.reset();
+      if (type === 'income') {
+        incomeOption.click();
+      } else {
+        expenseOption.click();
+      }
+      document.getElementById('amount').focus();
+    });
+    
+    // Initialize with sample data (optional)
+    function initSampleData() {
+      const sampleTransactions = [
+        {
+          id: 1,
+          description: "Salary",
+          amount: 50000,
+          type: "income",
+          category: "salary",
+          date: new Date()
+        },
+        {
+          id: 2,
+          description: "Groceries",
+          amount: 2500,
+          type: "expense",
+          category: "food",
+          date: new Date()
+        },
+        {
+          id: 3,
+          amount: 1200,
+          type: "expense",
+          category: "transport",
+          date: new Date(Date.now() - 86400000) // Yesterday
+        }];
+      
+      transactions = sampleTransactions;
+      transactions.forEach(transaction => {
+        addTransactionToDOM(transaction);
+      });
+      updateSummary();
+    }
+   
+    updateCategoryOptions('expense');
+    
+    initSampleData();
+  </script>
+</body>
+
+</html>
